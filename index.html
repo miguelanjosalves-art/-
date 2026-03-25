@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>PROJETO CONTAMINAÇÃO</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #050505;
+            color: #1aff1a;
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Container Principal */
+        #game-container {
+            text-align: center;
+            z-index: 10;
+        }
+
+        /* Estilo do Título */
+        h1 {
+            font-size: 2.5rem;
+            letter-spacing: 5px;
+            text-shadow: 0 0 10px #1aff1a;
+        }
+
+        button {
+            background: transparent;
+            color: #1aff1a;
+            border: 1px solid #1aff1a;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #1aff1a;
+            color: #000;
+            box-shadow: 0 0 20px #1aff1a;
+        }
+
+        /* OS OLHOS */
+        .eye-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none; /* Não atrapalha o clique */
+            opacity: 0; /* Começam invisíveis */
+            transition: opacity 2s ease-in-out;
+        }
+
+        .eye {
+            position: absolute;
+            width: 40px;
+            height: 15px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 15px #fff, inset 0 0 5px #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .eye::after {
+            content: '';
+            width: 10px;
+            height: 10px;
+            background: #ff0000; /* Pupila vermelha para o ser */
+            border-radius: 50%;
+            box-shadow: 0 0 5px #ff0000;
+        }
+
+        /* Posicionamento aleatório dos olhos (exemplo) */
+        .eye1 { top: 20%; left: 15%; transform: rotate(-10deg); }
+        .eye2 { top: 70%; left: 80%; transform: rotate(15deg); }
+        .eye3 { top: 15%; left: 75%; transform: rotate(5deg); }
+        .eye4 { top: 85%; left: 20%; transform: rotate(-5deg); }
+
+        /* Classe que ativa os olhos */
+        .eyes-active {
+            opacity: 1;
+        }
+
+        /* Tela do Jogo (escondida inicialmente) */
+        #game-screen {
+            display: none;
+        }
+
+        .back-btn {
+            margin-top: 50px;
+            font-size: 0.8rem;
+            border-color: #555;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="eyes-layer" class="eye-container">
+        <div class="eye eye1"></div>
+        <div class="eye eye2"></div>
+        <div class="eye eye3"></div>
+        <div class="eye eye4"></div>
+    </div>
+
+    <div id="title-screen" class="game-container">
+        <h1>SISTEMA DE INFECÇÃO</h1>
+        <p>CONEXÃO SEGURA ESTABELECIDA</p>
+        <br>
+        <button onclick="startGame()">INICIAR PROTOCOLO</button>
+    </div>
+
+    <div id="game-screen" class="game-container">
+        <h1>VOCÊ ESTÁ SENDO OBSERVADO</h1>
+        <p>A contaminação não é apenas biológica...</p>
+        <button class="back-btn" onclick="returnToTitle()">VOLTAR AO MENU</button>
+    </div>
+
+    <script>
+        const titleScreen = document.getElementById('title-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const eyesLayer = document.getElementById('eyes-layer');
+
+        function startGame() {
+            // Esconde o menu e mostra a tela do jogo
+            titleScreen.style.display = 'none';
+            gameScreen.style.display = 'block';
+            
+            // Ativa os olhos com fade-in
+            eyesLayer.classList.add('eyes-active');
+        }
+
+        function returnToTitle() {
+            // Volta as telas ao estado original
+            titleScreen.style.display = 'block';
+            gameScreen.style.display = 'none';
+            
+            // Remove os olhos com fade-out
+            eyesLayer.classList.remove('eyes-active');
+        }
+    </script>
+</body>
+</html>
