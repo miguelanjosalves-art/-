@@ -2,152 +2,143 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>PROJETO CONTAMINAÇÃO</title>
+    <title>ARQUIVO_CORROMPIDO_00.EXE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap" rel="stylesheet">
+    
     <style>
-        body, html {
+        * {
             margin: 0;
             padding: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #050505;
-            color: #1aff1a;
-            font-family: 'Courier New', monospace;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #000;
+            color: #d1d1d1;
+            font-family: 'Special Elite', serif;
+            height: 100vh;
             overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
+            flex-direction: column;
         }
 
-        /* Container Principal */
-        #game-container {
-            text-align: center;
+        /* Overlay de interferência (opcional, dá um clima de TV velha) */
+        body::before {
+            content: " ";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: repeating-linear-gradient(0deg, rgba(0,0,0,0.1), rgba(0,0,0,0.1) 1px, transparent 1px, transparent 2px);
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        /* CONFIGURAÇÃO DOS OLHOS (GIF) */
+        .eye-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            opacity: 0; /* Começa invisível */
+            transition: opacity 1.5s ease-in-out;
+            z-index: 1;
+        }
+
+        .eye-gif {
+            position: absolute;
+            width: 120px; /* Tamanho do olho */
+            filter: grayscale(100%) contrast(150%); /* Deixa o GIF mais sombrio */
+        }
+
+        /* Posições variadas para os olhos */
+        .pos1 { top: 10%; left: 10%; transform: rotate(-15deg); }
+        .pos2 { top: 15%; right: 15%; transform: rotate(10deg); width: 150px; }
+        .pos3 { bottom: 20%; left: 5%; transform: scaleX(-1); }
+        .pos4 { bottom: 10%; right: 10%; width: 100px; }
+
+        .active { opacity: 1 !important; }
+
+        /* INTERFACE */
+        .content {
             z-index: 10;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 40px;
+            border: 1px solid #333;
         }
 
-        /* Estilo do Título */
         h1 {
-            font-size: 2.5rem;
-            letter-spacing: 5px;
-            text-shadow: 0 0 10px #1aff1a;
+            font-size: 3rem;
+            color: #ff0000;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 5px #000;
+        }
+
+        p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            color: #888;
         }
 
         button {
+            font-family: 'Special Elite', serif;
             background: transparent;
-            color: #1aff1a;
-            border: 1px solid #1aff1a;
-            padding: 15px 30px;
+            color: #ff0000;
+            border: 1px solid #ff0000;
+            padding: 15px 40px;
             font-size: 1.2rem;
             cursor: pointer;
-            font-family: 'Courier New', monospace;
-            transition: 0.3s;
+            transition: all 0.3s;
         }
 
         button:hover {
-            background: #1aff1a;
+            background: #ff0000;
             color: #000;
-            box-shadow: 0 0 20px #1aff1a;
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.4);
         }
 
-        /* OS OLHOS */
-        .eye-container {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            pointer-events: none; /* Não atrapalha o clique */
-            opacity: 0; /* Começam invisíveis */
-            transition: opacity 2s ease-in-out;
-        }
-
-        .eye {
-            position: absolute;
-            width: 40px;
-            height: 15px;
-            background: #fff;
-            border-radius: 50%;
-            box-shadow: 0 0 15px #fff, inset 0 0 5px #000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .eye::after {
-            content: '';
-            width: 10px;
-            height: 10px;
-            background: #ff0000; /* Pupila vermelha para o ser */
-            border-radius: 50%;
-            box-shadow: 0 0 5px #ff0000;
-        }
-
-        /* Posicionamento aleatório dos olhos (exemplo) */
-        .eye1 { top: 20%; left: 15%; transform: rotate(-10deg); }
-        .eye2 { top: 70%; left: 80%; transform: rotate(15deg); }
-        .eye3 { top: 15%; left: 75%; transform: rotate(5deg); }
-        .eye4 { top: 85%; left: 20%; transform: rotate(-5deg); }
-
-        /* Classe que ativa os olhos */
-        .eyes-active {
-            opacity: 1;
-        }
-
-        /* Tela do Jogo (escondida inicialmente) */
-        #game-screen {
-            display: none;
-        }
-
-        .back-btn {
-            margin-top: 50px;
-            font-size: 0.8rem;
-            border-color: #555;
-            color: #555;
-        }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
 
-    <div id="eyes-layer" class="eye-container">
-        <div class="eye eye1"></div>
-        <div class="eye eye2"></div>
-        <div class="eye eye3"></div>
-        <div class="eye eye4"></div>
+    <div id="eyeLayer" class="eye-overlay">
+        <img src="https://media.tenor.com/aPUrybBOMpIAAAAi/ojo.gif" class="eye-gif pos1">
+        <img src="https://media.tenor.com/aPUrybBOMpIAAAAi/ojo.gif" class="eye-gif pos2">
+        <img src="https://media.tenor.com/aPUrybBOMpIAAAAi/ojo.gif" class="eye-gif pos3">
+        <img src="https://media.tenor.com/aPUrybBOMpIAAAAi/ojo.gif" class="eye-gif pos4">
     </div>
 
-    <div id="title-screen" class="game-container">
-        <h1>SISTEMA DE INFECÇÃO</h1>
-        <p>CONEXÃO SEGURA ESTABELECIDA</p>
-        <br>
-        <button onclick="startGame()">INICIAR PROTOCOLO</button>
+    <div id="menuScreen" class="content">
+        <h1>PROJETO S.E.R.</h1>
+        <p>Aviso: O conteúdo a seguir é estritamente confidencial.</p>
+        <button onclick="entrar()">EXECUTAR ACESSO</button>
     </div>
 
-    <div id="game-screen" class="game-container">
-        <h1>VOCÊ ESTÁ SENDO OBSERVADO</h1>
-        <p>A contaminação não é apenas biológica...</p>
-        <button class="back-btn" onclick="returnToTitle()">VOLTAR AO MENU</button>
+    <div id="gameScreen" class="content hidden">
+        <h1>INFECÇÃO DETECTADA</h1>
+        <p>Eles já estão aqui. Não olhe para trás.</p>
+        <button onclick="voltar()" style="color: #666; border-color: #666;">ABORTAR</button>
     </div>
 
     <script>
-        const titleScreen = document.getElementById('title-screen');
-        const gameScreen = document.getElementById('game-screen');
-        const eyesLayer = document.getElementById('eyes-layer');
+        const eyeLayer = document.getElementById('eyeLayer');
+        const menu = document.getElementById('menuScreen');
+        const game = document.getElementById('gameScreen');
 
-        function startGame() {
-            // Esconde o menu e mostra a tela do jogo
-            titleScreen.style.display = 'none';
-            gameScreen.style.display = 'block';
-            
-            // Ativa os olhos com fade-in
-            eyesLayer.classList.add('eyes-active');
+        function entrar() {
+            menu.classList.add('hidden');
+            game.classList.remove('hidden');
+            // Ativa o fade-in dos olhos
+            eyeLayer.classList.add('active');
         }
 
-        function returnToTitle() {
-            // Volta as telas ao estado original
-            titleScreen.style.display = 'block';
-            gameScreen.style.display = 'none';
-            
-            // Remove os olhos com fade-out
-            eyesLayer.classList.remove('eyes-active');
+        function voltar() {
+            game.classList.add('hidden');
+            menu.classList.remove('hidden');
+            // Remove os olhos
+            eyeLayer.classList.remove('active');
         }
     </script>
 </body>
