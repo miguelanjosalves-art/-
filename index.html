@@ -2,144 +2,232 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>???</title>
-    <link href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap" rel="stylesheet">
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Isaac's Doodle Quiz</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        /* Estilo "Papel Rabiscado" */
         body {
-            background-color: #000;
-            color: #d1d1d1;
-            font-family: 'Special Elite', serif;
-            height: 100vh;
-            overflow: hidden;
+            background-color: #1a1a1a;
+            color: #2b1d12;
+            font-family: 'Comic Sans MS', 'Chalkboard SE', cursive;
             display: flex;
             justify-content: center;
             align-items: center;
-            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden;
         }
 
-        /* Overlay de interferência (opcional, dá um clima de TV velha) */
-        body::before {
-            content: " ";
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: repeating-linear-gradient(0deg, rgba(0,0,0,0.1), rgba(0,0,0,0.1) 1px, transparent 1px, transparent 2px);
-            pointer-events: none;
+        /* GIFs da Dancinha */
+        .dance {
+            position: fixed;
+            bottom: 10px;
+            width: 180px;
             z-index: 100;
         }
+        .left { left: 20px; }
+        .right { right: 20px; transform: scaleX(-1); }
 
-        /* CONFIGURAÇÃO DOS OLHOS (GIF) */
-        .eye-overlay {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            pointer-events: none;
-            opacity: 0; /* Começa invisível */
-            transition: opacity 1.5s ease-in-out;
-            z-index: 1;
-        }
-
-        .eye-gif {
-            position: absolute;
-            width: 120px; /* Tamanho do olho */
-            filter: grayscale(100%) contrast(150%); /* Deixa o GIF mais sombrio */
-        }
-
-        /* Posições variadas para os olhos */
-        .pos1 { top: 10%; left: 10%; transform: rotate(-15deg); }
-        .pos2 { top: 15%; right: 15%; transform: rotate(10deg); width: 150px; }
-        .pos3 { bottom: 20%; left: 5%; transform: scaleX(-1); }
-        .pos4 { bottom: 10%; right: 10%; width: 100px; }
-
-        .active { opacity: 1 !important; }
-
-        /* INTERFACE */
-        .content {
-            z-index: 10;
-            text-align: center;
-            background: rgba(0, 0, 0, 0.8);
+        /* Container estilo rascunho */
+        .quiz-card {
+            background: #e3dccb;
             padding: 40px;
-            border: 1px solid #333;
+            width: 90%;
+            max-width: 600px;
+            border: 4px solid #2b1d12;
+            box-shadow: 12px 12px 0px #000;
+            position: relative;
+            /* Bordas irregulares para parecer papel cortado à mão */
+            border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+            transform: rotate(-1deg);
         }
 
         h1 {
-            font-size: 3rem;
-            color: #ff0000;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 5px #000;
+            text-align: center;
+            text-decoration: underline;
+            text-transform: uppercase;
+            margin-top: 0;
+            font-size: 2.5rem;
         }
 
-        p {
-            font-size: 1.2rem;
-            margin-bottom: 30px;
-            color: #888;
+        #question {
+            font-size: 1.4rem;
+            margin-bottom: 25px;
+            font-weight: bold;
+            min-height: 60px;
         }
 
-        button {
-            font-family: 'Special Elite', serif;
-            background: transparent;
-            color: #ff0000;
-            border: 1px solid #ff0000;
-            padding: 15px 40px;
+        .answers-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .btn {
+            background: none;
+            border: 3px solid #2b1d12;
+            padding: 12px;
+            font-size: 1.1rem;
+            font-family: inherit;
+            cursor: pointer;
+            transition: 0.2s;
+            border-radius: 100px 20px 100px 20px/20px 100px 20px 100px;
+        }
+
+        .btn:hover:not([disabled]) {
+            background: rgba(0,0,0,0.05);
+            transform: scale(1.03);
+        }
+
+        .correct { background-color: #88b04b !important; color: white; }
+        .wrong { background-color: #c0392b !important; color: white; text-decoration: line-through; }
+
+        .controls {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        #start-btn, #next-btn {
+            background: #2b1d12;
+            color: #e3dccb;
+            border: none;
+            padding: 15px 30px;
             font-size: 1.2rem;
             cursor: pointer;
-            transition: all 0.3s;
+            font-family: inherit;
+            border-radius: 5px;
         }
 
-        button:hover {
-            background: #ff0000;
-            color: #000;
-            box-shadow: 0 0 30px rgba(255, 0, 0, 0.4);
-        }
+        .hide { display: none; }
+        #progress { margin-bottom: 10px; font-weight: bold; }
 
-        .hidden { display: none; }
+        @media (max-width: 768px) {
+            .dance { width: 100px; }
+            .answers-grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
 
-    <div id="eyeLayer" class="eye-overlay">
-        <img src="https://media.tenor.com/aPUrybBOMpIAAAAi/ojo.gif" class="eye-gif pos1">
-        <img src="https://media.tenor.com/aPUrybBOMpIAAAAi/ojo.gif" class="eye-gif pos2">
-        <img src="https://media.tenor.com/aPUrybBOMpIAAAAi/ojo.gif" class="eye-gif pos3">
-        <img src="https://media.tenor.com/aPUrybBOMpIAAAAi/ojo.gif" class="eye-gif pos4">
-    </div>
+    <img src="https://media.tenor.com/bfAPV6kZXu8AAAAi/isaac-dance.gif" class="dance left">
+    <img src="https://media.tenor.com/bfAPV6kZXu8AAAAi/isaac-dance.gif" class="dance right">
 
-    <div id="menuScreen" class="content">
-        <h1>???</h1>
-        <p>Aviso: O conteúdo a seguir é estritamente confidencial.</p>
-        <button onclick="entrar()">começar</button>
-    </div>
+    <div class="quiz-card">
+        <h1>Isaac Quiz</h1>
+        <div id="progress" class="hide">Questão 1 de 25</div>
 
-    <div id="gameScreen" class="content hidden">
-        <h1>deseja realmente começar?</h1>
-        <p>continue poor sua conta em risco.</p>
-        <button onclick="não()" style="color: #666; border-color: #666;">sim</button>
-        <button onclick="sim()" style="color: #f70a0a; border-color: #f70a0a;">não</button>
+        <div id="quiz-content" class="hide">
+            <div id="question">Pergunta?</div>
+            <div id="answer-buttons" class="answers-grid"></div>
+        </div>
+
+        <div class="controls">
+            <button id="start-btn">COMEÇAR RUN</button>
+            <button id="next-btn" class="hide">PRÓXIMA SALA</button>
+        </div>
+
+        <div id="result" class="hide" style="text-align:center;">
+            <h2 id="final-score"></h2>
+            <p id="rank"></p>
+        </div>
     </div>
 
     <script>
-        const eyeLayer = document.getElementById('eyeLayer');
-        const menu = document.getElementById('menuScreen');
-        const game = document.getElementById('gameScreen');
+        const questions = [
+            { q: "Qual item dá lágrimas de sangue infinitas?", a: [{t: "Brimstone", c: true}, {t: "Tech X", c: false}, {t: "Revelation", c: false}, {t: "The Pact", c: false}] },
+            { q: "Personagem que começa com o D6?", a: [{t: "Isaac", c: true}, {t: "Cain", c: false}, {t: "Azazel", c: false}, {t: "Blue Baby", c: false}] },
+            { q: "Qual transformação requer 3 itens de moscas?", a: [{t: "Beelzebub", c: true}, {t: "Guppy", c: false}, {t: "Lord of Flies", c: false}, {t: "Spider Baby", c: false}] },
+            { q: "O que o item 'The Tick' impede?", a: [{t: "Trocar de Trinket", c: true}, {t: "Pegar Bombas", c: false}, {t: "Voar", c: false}, {t: "Atirar", c: false}] },
+            { q: "Qual boss final está no 'The Void'?", a: [{t: "Delirium", c: true}, {t: "Hush", c: false}, {t: "Mega Satan", c: false}, {t: "Mother", c: false}] },
+            { q: "Item que dá 9 vidas mas 1 coração:", a: [{t: "Dead Cat", c: true}, {t: "Guppy's Tail", c: false}, {t: "1up!", c: false}, {t: "Inner Child", c: false}] },
+            { q: "Qual cor de coração o Blue Baby usa?", a: [{t: "Soul/Black Hearts", c: true}, {t: "Red Hearts", c: false}, {t: "Eternal Hearts", c: false}, {t: "Bone Hearts", c: false}] },
+            { q: "O item 'Soy Milk' faz o quê?", a: [{t: "Dano Baixo / Tiro Rápido", c: true}, {t: "Dano Alto / Tiro Lento", c: false}, {t: "Voo", c: false}, {t: "Explosões", c: false}] },
+            { q: "Transformação de 3 itens de anjo:", a: [{t: "Seraphim", c: true}, {t: "Leviathan", c: false}, {t: "Conjoined", c: false}, {t: "Bookworm", c: false}] },
+            { q: "Quem é o pai do Isaac (Narrador)?", a: [{t: "Dad", c: true}, {t: "Stan", c: false}, {t: "Edmund", c: false}, {t: "The Lamb", c: false}] },
+            { q: "O item 'Sacred Heart' é de qual sala?", a: [{t: "Angel Room", c: true}, {t: "Devil Room", c: false}, {t: "Secret Room", c: false}, {t: "Shop", c: false}] },
+            { q: "Quantas moedas o Keeper precisa para 3 slots de vida?", a: [{t: "Nenhuma (é automático)", c: false}, {t: "Derrotar Hush", c: true}, {t: "999 moedas", c: false}, {t: "15 moedas", c: false}] },
+            { q: "O que o 'Chaos' faz?", a: [{t: "Mistura as Item Pools", c: true}, {t: "Dá azar", c: false}, {t: "Mata inimigos", c: false}, {t: "Teleporta", c: false}] },
+            { q: "Item que permite atirar facas:", a: [{t: "Mom's Knife", c: true}, {t: "Death's Touch", c: false}, {t: "The Nail", c: false}, {t: "Sacrificial Dagger", c: false}] },
+            { q: "Quem é o boss final do Greed Mode?", a: [{t: "Ultra Greed", c: true}, {t: "Monstro", c: false}, {t: "The Beast", c: false}, {t: "Mega Satan", c: false}] },
+            { q: "A 'Chaos Card' mata quase tudo com 1 hit?", a: [{t: "Sim", c: true}, {t: "Não", c: false}, {t: "Só o Isaac", c: false}, {t: "Só Chefes", c: false}] },
+            { q: "Qual item dá 100% de chance de Angel/Devil Room?", a: [{t: "Goat Head", c: true}, {t: "Rosary Bead", c: false}, {t: "Pentagram", c: false}, {t: "Black Candle", c: false}] },
+            { q: "O que 'Godhead' faz com as lágrimas?", a: [{t: "Dá uma aura de dano", c: true}, {t: "Faz elas quicarem", c: false}, {t: "Explodirem", c: false}, {t: "Congelarem", c: false}] },
+            { q: "Qual pílula aumenta o range?", a: [{t: "Range Up", c: true}, {t: "Tears Up", c: false}, {t: "Health Up", c: false}, {t: "Speed Up", c: false}] },
+            { q: "O item 'The Wafer' reduz dano para meio coração?", a: [{t: "Sim", c: true}, {t: "Não", c: false}, {t: "Só no Hard", c: false}, {t: "Só após a Womb", c: false}] },
+            { q: "Qual personagem usa 'The Jar of Flies'?", a: [{t: "Tainted Blue Baby", c: false}, {t: "Cain", c: false}, {t: "Appollyon", c: false}, {t: "Nenhum nativamente", c: true}] },
+            { q: "Item que transforma lágrimas em tecnologia circular:", a: [{t: "Tech X", c: true}, {t: "Technology", c: false}, {t: "Technology 2", c: false}, {t: "Tech.5", c: false}] },
+            { q: "Qual a última DLC lançada?", a: [{t: "Repentance", c: true}, {t: "Afterbirth+", c: false}, {t: "Antibirth", c: false}, {t: "Rebirth", c: false}] },
+            { q: "A 'Mom's Shovel' desbloqueia quem?", a: [{t: "The Forgotten", c: true}, {t: "The Lost", c: false}, {t: "Keeper", c: false}, {t: "Lilith", c: false}] },
+            { q: "Qual o rank mais alto do jogo?", a: [{t: "Dead God", c: true}, {t: "Real Platinum God", c: false}, {t: "Golden God", c: false}, {t: "1000000%", c: false}] }
+        ];
 
-        function entrar() {
-            menu.classList.add('hidden');
-            game.classList.remove('hidden');
-            // Ativa o fade-in dos olhos
-            eyeLayer.classList.add('active');
+        let currentIdx, score;
+        const startBtn = document.getElementById('start-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const quizContent = document.getElementById('quiz-content');
+        const questionEl = document.getElementById('question');
+        const answerBtnsEl = document.getElementById('answer-buttons');
+        const progressEl = document.getElementById('progress');
+        const resultEl = document.getElementById('result');
+
+        startBtn.addEventListener('click', start);
+        nextBtn.addEventListener('click', () => { currentIdx++; setNext(); });
+
+        function start() {
+            startBtn.classList.add('hide');
+            resultEl.classList.add('hide');
+            quizContent.classList.remove('hide');
+            progressEl.classList.remove('hide');
+            currentIdx = 0; score = 0;
+            setNext();
         }
 
-        function voltar() {
-            game.classList.add('hidden');
-            menu.classList.remove('hidden');
-            // Remove os olhos
-            eyeLayer.classList.remove('active');
+        function setNext() {
+            reset();
+            progressEl.innerText = `Questão ${currentIdx + 1} de 25`;
+            show(questions[currentIdx]);
+        }
+
+        function show(q) {
+            questionEl.innerText = q.q;
+            q.a.forEach(ans => {
+                const btn = document.createElement('button');
+                btn.innerText = ans.t;
+                btn.classList.add('btn');
+                if (ans.c) btn.dataset.c = true;
+                btn.addEventListener('click', select);
+                answerBtnsEl.appendChild(btn);
+            });
+        }
+
+        function reset() {
+            nextBtn.classList.add('hide');
+            while (answerBtnsEl.firstChild) answerBtnsEl.removeChild(answerBtnsEl.firstChild);
+        }
+
+        function select(e) {
+            const selected = e.target;
+            const isCorrect = selected.dataset.c === "true";
+            if (isCorrect) { score++; selected.classList.add('correct'); }
+            else { selected.classList.add('wrong'); }
+            
+            Array.from(answerBtnsEl.children).forEach(b => {
+                b.disabled = true;
+                if (b.dataset.c) b.classList.add('correct');
+            });
+
+            if (currentIdx < 24) nextBtn.classList.remove('hide');
+            else end();
+        }
+
+        function end() {
+            quizContent.classList.add('hide');
+            progressEl.classList.add('hide');
+            resultEl.classList.remove('hide');
+            document.getElementById('final-score').innerText = `Run Finalizada: ${score}/25`;
+            document.getElementById('rank').innerText = score === 25 ? "DEAD GOD!" : score > 15 ? "PLATINUM GOD" : "YOU DIED";
+            startBtn.innerText = "REINICIAR RUN";
+            startBtn.classList.remove('hide');
         }
     </script>
 </body>
